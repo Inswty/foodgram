@@ -1,10 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 
 from .constants import MAX_CHAR_LENGTH, MAX_SLUG_LENGTH, MAX_STR_LENGTH
-
-
-User = get_user_model()
+from users.models import User
 
 
 class Ingredient(models.Model):

@@ -11,6 +11,7 @@ class FollowAdmin(admin.ModelAdmin):
     )
     list_filter = ('user',)
     search_fields = ('user',)
+    ordering = ('following',)
 
 
 @admin.register(Ingredient)
@@ -21,6 +22,7 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     list_filter = ('name',)
     search_fields = ('name',)
+    ordering = ('name',)
 
 
 @admin.register(Recipe)
@@ -34,6 +36,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ('name',)
     search_fields = ('name',)
+    ordering = ('name',)
 
 
 @admin.register(Tag)
@@ -44,3 +47,4 @@ class TagAdmin(admin.ModelAdmin):
     )
     list_filter = ('name',)
     search_fields = ('name',)
+    ordering = ('name',)
