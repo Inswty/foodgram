@@ -17,8 +17,8 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-class UserAvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(required=True)
+class UserAvatarSerializer(serializers.ModelSerializer):            # Обрать внимание на ТЗ
+    avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
@@ -39,7 +39,7 @@ class UserSerializer(BaseUserSerializer):
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         if user.is_authenticated:
-            return user.follows.filter(following=obj).exists()
+            return user.subscriptions.filter(subscribed_to=obj).exists()
         return False
 
 

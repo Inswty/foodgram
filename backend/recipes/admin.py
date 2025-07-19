@@ -1,24 +1,19 @@
 from django.contrib import admin
 
-from .models import Follow, Ingredient, Recipe, Tag
+from .models import Favorite, Ingredient, ShoppingCart, Recipe, Tag, IngredientInRecipe
 
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = (
-        'user',
-        'following',
-    )
-    list_filter = ('user',)
-    search_fields = ('user',)
-    ordering = ('following',)
+class IngredientInRecipeInline(admin.TabularInline):
+    model = IngredientInRecipe
+    extra = 1  # Показывать одну пустую форму по умолчанию
+    autocomplete_fields = ['ingredient']  # Если много ингредиентов, удобно искать
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'unit',
+        'measurement_unit',
     )
     list_filter = ('name',)
     search_fields = ('name',)
@@ -30,13 +25,15 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'author',
         'name',
-        'description',
+        'text',
         'cooking_time',
 
     )
-    list_filter = ('name',)
-    search_fields = ('name',)
+    list_filter = ('author__username',)
+    search_fields = ('author__username', 'name',)
     ordering = ('name',)
+    inlines = [IngredientInRecipeInline]
+    filter_horizontal = ('tags',)
 
 
 @admin.register(Tag)
@@ -48,3 +45,25 @@ class TagAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     search_fields = ('name',)
     ordering = ('name',)
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    list_filter = ('user',)
+    search_fields = ('user', 'recipe')
+    ordering = ('user',)
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    list_filter = ('user',)
+    search_fields = ('user', 'recipe')
+    ordering = ('user',)

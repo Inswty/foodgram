@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
-from .models import User
+from .models import User, Subscription
 
 admin.site.unregister(Group)
 
@@ -46,3 +46,14 @@ class UserAdmin(BaseUserAdmin):
             )
         return "Нет фото"
     avatar_preview.short_description = 'Аватар'
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'subscribed_to',
+    )
+    list_filter = ('user',)
+    search_fields = ('user',)
+    ordering = ('subscribed_to',)
