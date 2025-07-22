@@ -7,8 +7,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('djoser.urls.authtoken')),  # токены (логин/логаут)
     path('api/', include('recipes.urls')),  # рецепты, теги, ингредиенты
-    path('api/', include('djoser.urls')),  # регистрация, смена пароля
-    path('api/users/', include('users.urls')),  # профили, аватары, подписки
+    #path('api/', include('djoser.urls')),  # регистрация, смена пароля
+    path('api/', include('users.urls')),  # профили, аватары, подписки
 ]
 
 if settings.DEBUG:

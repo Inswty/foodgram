@@ -23,11 +23,10 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'author',
         'name',
         'text',
         'cooking_time',
-
+        'author',
     )
     list_filter = ('author__username',)
     search_fields = ('author__username', 'name',)

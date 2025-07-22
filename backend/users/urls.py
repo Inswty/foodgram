@@ -1,10 +1,10 @@
-from django.urls import include, path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import UserViewSet
 
-from .views import UserAvatarUpdateView  #SubscriptionsView, UserDetailView, SetPasswordView
+router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='users')  # Явно регистрируем префикс 'users'
 
 urlpatterns = [
-    path('me/avatar/', UserAvatarUpdateView.as_view(), name='avatar-update'),
-    #path('subscriptions/', SubscriptionsView.as_view(), name='subscriptions'),
-    #path('set_password/', SetPasswordView.as_view(), name='set-password'),  # если кастомный
-    #path('<int:id>/', UserDetailView.as_view(), name='user-detail'),
+    path('', include(router.urls)),
 ]

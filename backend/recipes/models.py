@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-from .constants import MAX_CHAR_LENGTH, MAX_SLUG_LENGTH, MAX_STR_LENGTH
+from core.constants import MAX_CHAR_LENGTH, MAX_SLUG_LENGTH, MAX_STR_LENGTH
 from users.models import User
 
 
@@ -12,12 +12,12 @@ class Ingredient(models.Model):
         max_length=MAX_CHAR_LENGTH
     )
 
+    class Meta:
+        verbose_name = 'ингредиент'
+        verbose_name_plural = 'ингредиенты'
+
     def __str__(self):
         return self.name[:MAX_STR_LENGTH]
-
-    class Meta:
-        verbose_name = 'ингридиент'
-        verbose_name_plural = 'ингридиенты'
 
 
 class Tag(models.Model):
@@ -37,13 +37,14 @@ class Tag(models.Model):
         verbose_name_plural = 'теги'
 
     def __str__(self):
-        return self.name
+        return self.name[:MAX_STR_LENGTH]
 
 
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField('Название', max_length=MAX_CHAR_LENGTH)
@@ -78,13 +79,13 @@ class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_amounts',
+        related_name='recipe_ingredients',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredient_amounts',
+        related_name='used_in_recipes',
         verbose_name='Ингредиент'
     )
     amount = models.PositiveIntegerField(
@@ -104,7 +105,7 @@ class IngredientInRecipe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.ingredient.name} — {self.amount} ({self.recipe.name})'
+        return f'{self.ingredient} — {self.amount} ({self.recipe})'
 
 
 class Favorite(models.Model):
