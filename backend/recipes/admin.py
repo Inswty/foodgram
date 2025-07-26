@@ -28,8 +28,8 @@ class RecipeAdmin(admin.ModelAdmin):
         'cooking_time',
         'author',
     )
-    list_filter = ('author__username',)
-    search_fields = ('author__username', 'name',)
+    list_filter = ('author',)
+    search_fields = ('author', 'name',)
     ordering = ('name',)
     inlines = [IngredientInRecipeInline]
     filter_horizontal = ('tags',)

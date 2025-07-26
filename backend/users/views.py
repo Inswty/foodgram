@@ -49,12 +49,12 @@ class UserViewSet(DjoserUserViewSet):
         if request.method == 'POST':
             if user == author:
                 return Response(
-                    {"error": "Нельзя подписаться на себя"},
+                    {'error': 'Нельзя подписаться на себя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if Subscription.objects.filter(user=user, subscribed_to=author).exists():
                 return Response(
-                    {"error": "Вы уже подписаны на этого пользователя"},
+                    {'error': 'Вы уже подписаны на этого пользователя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -72,7 +72,7 @@ class UserViewSet(DjoserUserViewSet):
             )
             if not subscription.exists():
                 return Response(
-                    {"error": "Подписка не найдена"},
+                    {'error': 'Подписка не найдена'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             subscription.delete()

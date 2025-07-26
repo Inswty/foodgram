@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
 from core.fields import Base64ImageField
-from .models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.serializers import UserSerializer
+from .models import (
+    Favorite, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag
+)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -51,13 +53,23 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     )
     tags = TagSerializer(many=True)
     image = Base64ImageField(required=True, allow_null=False)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = (
             'id', 'author', 'name', 'image', 'text', 'ingredients',
-            'tags', 'cooking_time'
+            'is_favorited', 'is_in_shopping_cart', 'tags', 'cooking_time'
         )
+
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        return Favorite.objects.filter(user=user, recipe=obj).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -130,3 +142,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             instance.tags.set(tags)
 
         return instance
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')

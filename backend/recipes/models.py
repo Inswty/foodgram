@@ -1,7 +1,12 @@
+import random
+import string
+
 from django.db import models
 from django.core.validators import MinValueValidator
 
-from core.constants import MAX_CHAR_LENGTH, MAX_SLUG_LENGTH, MAX_STR_LENGTH
+from core.constants import (
+    LENGTH_SHORT_CODE, MAX_CHAR_LENGTH, MAX_SLUG_LENGTH, MAX_SHORT_CODE_LENGTH, MAX_STR_LENGTH
+)
 from users.models import User
 
 
@@ -65,6 +70,23 @@ class Recipe(models.Model):
         validators=(MinValueValidator(1),),
         help_text='Укажите время приготовления в минутах'
     )
+    short_code = models.CharField(
+        max_length=MAX_SHORT_CODE_LENGTH,
+        blank=True,
+        null=True,
+        unique=True,
+        editable=False,
+        verbose_name='Короткая ссылка'
+    )
+
+    def generate_and_assign_short_code(self):
+        if not self.short_code:
+            while True:
+                code = ''.join(random.choices(string.ascii_lowercase + string.digits, k=LENGTH_SHORT_CODE))
+                if not Recipe.objects.filter(short_code=code).exists():
+                    self.short_code = code
+                    self.save(update_fields=['short_code'])
+                    break
 
     class Meta:
         verbose_name = 'рецепт'

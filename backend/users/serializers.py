@@ -17,7 +17,7 @@ class AvatarSerializer(serializers.ModelSerializer):            # Обратит
 
 
 class UserSerializer(BaseUserSerializer):
-    """Основной сериализатор пользователя"""
+    """Основной сериализатор пользователя."""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField(required=False, allow_null=True)
 
@@ -32,7 +32,7 @@ class UserSerializer(BaseUserSerializer):
                 subscribed_to=obj
             ).exists()
         return False
-    
+
 
 class UserCreateSerializer(BaseUserCreateSerializer):
 
@@ -44,16 +44,16 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         )
 
 
-class RecipeShortSerializer(serializers.ModelSerializer):
+class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class SubscriptionSerializer(UserSerializer):
-    """Сериализатор для подписок с дополнительной информацией"""
+    """Сериализатор для подписок с дополнительной информацией."""
     recipes_count = serializers.SerializerMethodField()
-    recipes = RecipeShortSerializer(many=True, read_only=True)
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ('recipes_count', 'recipes')
