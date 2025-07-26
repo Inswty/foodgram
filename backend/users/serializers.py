@@ -1,11 +1,12 @@
-from djoser.serializers import UserSerializer as BaseUserSerializer
-from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
+from djoser.serializers import (
+    UserSerializer as BaseUserSerializer,
+    UserCreateSerializer as BaseUserCreateSerializer,
+)
 from rest_framework import serializers
-from .models import Subscription
-from core.fields import Base64ImageField
 
+from core.fields import Base64ImageField
 from recipes.models import Recipe
-from .models import User
+from .models import Subscription, User
 
 
 class AvatarSerializer(serializers.ModelSerializer):            # Обратить внимание на ТЗ

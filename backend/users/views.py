@@ -1,8 +1,9 @@
 from djoser.views import UserViewSet as DjoserUserViewSet
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+
 from .models import Subscription
 from .serializers import SubscriptionSerializer, AvatarSerializer
 
@@ -53,7 +54,8 @@ class UserViewSet(DjoserUserViewSet):
                     {'error': 'Нельзя подписаться на себя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            if Subscription.objects.filter(user=user, subscribed_to=author).exists():
+            if Subscription.objects.filter(user=user,
+                                           subscribed_to=author).exists():
                 return Response(
                     {'error': 'Вы уже подписаны на этого пользователя'},
                     status=status.HTTP_400_BAD_REQUEST

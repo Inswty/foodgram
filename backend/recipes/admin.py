@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-
 from .models import (
-    Favorite, Ingredient, ShoppingCart, Recipe, Tag, IngredientInRecipe
+    Favorite, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag
 )
 
 
