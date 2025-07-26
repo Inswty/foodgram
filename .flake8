@@ -5,12 +5,11 @@ exclude =
     tests/,
     */migrations/,
     data/,
-    venv/,
     .venv/,
+    venv/,
     env/,
     docs/,
     frontend/,
     infra/
-    .github
 per-file-ignores =
     */settings.py:E5

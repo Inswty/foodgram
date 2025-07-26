@@ -2,9 +2,9 @@ from django.db.models import Case, F, IntegerField, Sum, Value, When
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_GET
-from rest_framework import views, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import (
@@ -14,6 +14,7 @@ from .serializers import (
 from .models import (
     Favorite, Ingredient, IngredientInRecipe, Recipe, Tag, ShoppingCart
 )
+from core.permissions import IsOwnerOrReadOnly
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -21,6 +22,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         Recipe.objects.select_related('author')
         .prefetch_related('tags', 'ingredients').order_by('-id')
     )
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_permissions(self):
+        if self.action in ('favorite', 'shopping_cart'):
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -33,7 +40,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         tags = self.request.query_params.getlist('tags')
-        is_in_cart = self.request.query_params.get('is_in_shopping_cart') == '1'
+        is_in_cart = (
+            self.request.query_params.get('is_in_shopping_cart') == '1'
+        )
         author = self.request.query_params.get('author')
         # Если теги не выбраны → возвращем пустой queryset
         if self.action == 'list' and not tags and not is_in_cart:
@@ -54,46 +63,50 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def handle_cart_or_favorite(self, model, action, error_msg):
         user = self.request.user
-        recipe = self.get_object()  # Получаем рецепт по pk.
-
-        # Вызываем сериализатор один раз
+        recipe = self.get_object()
         recipe_serializer_data = ShortRecipeSerializer(recipe).data
-
         if action == 'POST':
-            # Проверка, есть ли рецепт уже в списке (избранное или корзина).
+            # Проверка, есть ли рецепт уже в списке (избранное или корзина)
             if model.objects.filter(user=user, recipe=recipe).exists():
                 return Response(
                     {'error': error_msg},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            # Если нет, добавляем в список.
+            # Если нет, добавляем в список
             model.objects.create(user=user, recipe=recipe)
-            return Response(recipe_serializer_data, status=status.HTTP_201_CREATED)
-
+            return Response(recipe_serializer_data,
+                            status=status.HTTP_201_CREATED)
         elif action == 'DELETE':
-            # Проверка, есть ли рецепт в списке.
-            item = model.objects.filter(user=user, recipe=recipe)
-            if not item.exists():
+            # Проверка, есть ли рецепт в списке
+            item = model.objects.filter(user=user, recipe=recipe).first()
+            if not item:
                 return Response(
-                    {'error': f'{error_msg} отсутствует.'},
+                    {'error': error_msg},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            item.delete()  # Удаляем рецепт из списка.
+            if item.user != user:
+                return Response(
+                    {'error': 'Вы не автор этого.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post', 'delete'])
     def favorite(self, request, pk=None):
         error_msg = 'Рецепт уже в избранном.'
-        return self.handle_cart_or_favorite(Favorite, request.method, error_msg)
+        return self.handle_cart_or_favorite(Favorite, request.method,
+                                            error_msg)
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
         error_msg = 'Рецепт уже в корзине.'
-        return self.handle_cart_or_favorite(ShoppingCart, request.method, error_msg)
+        return self.handle_cart_or_favorite(ShoppingCart, request.method,
+                                            error_msg)
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
-        """ Скачать список покупок в виде текстового файла."""
+        """Скачать список покупок в виде текстового файла."""
         ingredients = (
             IngredientInRecipe.objects
             .filter(recipe__added_to_carts__user=request.user)
@@ -111,11 +124,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         text_content = 'Foodgram - Список покупок\n' + '=' * 30 + '\n\n'
         text_content += '\n'.join(
-            f'{i}. {item["name"]} — {item["total_amount"]} {item["measurement_unit"]}'
+            f'{i}. {item["name"]} — {item["total_amount"]}'
+            f' {item["measurement_unit"]}'
             for i, item in enumerate(ingredients, start=1)
         )
         response = HttpResponse(text_content, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        response['Content-Disposition'] = (
+            'attachment;filename="shopping_list.txt"')
         return response
 
     @action(detail=True, url_path='get-link', methods=['get'])
@@ -127,19 +142,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({'short-link': short_url})
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny,)
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    permission_classes = (AllowAny,)
 
-    # Поиск по частичному вхождению в начале названия и в произвольном месте
     def get_queryset(self):
+        """
+        Поиск по частичному вхождению в
+        начале названия и в произвольном месте
+        """
         queryset = self.queryset
         name = self.request.query_params.get('name')
         if name:

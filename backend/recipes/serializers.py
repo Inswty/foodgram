@@ -24,7 +24,9 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
-    measurement_unit = serializers.CharField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -42,7 +44,9 @@ class IngredientInRecipeWriteSerializer(serializers.Serializer):
 
     def validate_amount(self, value):
         if value <= 0:
-            raise serializers.ValidationError("Количество ингредиента должно быть больше 0")
+            raise serializers.ValidationError(
+                'Количество ингредиента должно быть больше 0'
+            )
         return value
 
 
@@ -65,10 +69,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
         return Favorite.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
 
@@ -107,7 +115,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def to_representation(self, instance):                      # Эксперементально
+    def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data
 
     def create_ingredients(self, ingredients_data, recipe):
@@ -134,7 +142,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
 
         if ingredients_data is not None:
-            #instance.ingredients.clear()
             instance.recipe_ingredients.all().delete()
             self.create_ingredients(ingredients_data, instance)
 

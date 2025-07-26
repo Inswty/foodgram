@@ -12,7 +12,8 @@ class UserViewSet(DjoserUserViewSet):
     permission_classes = [IsAuthenticated]
 
     # Метод для работы с аватаром
-    @action(detail=False, methods=['put', 'patch'], url_path='me/avatar', serializer_class=AvatarSerializer)
+    @action(detail=False, methods=['put', 'patch'], url_path='me/avatar',
+            serializer_class=AvatarSerializer)
     def avatar(self, request):
         """
         Обновление аватара текущего пользователя
