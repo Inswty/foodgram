@@ -15,7 +15,7 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'  # Аутентификация по email
-    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')  # Оставляем поле обязательным
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
         verbose_name = 'Пользователь'

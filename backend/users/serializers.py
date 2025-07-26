@@ -9,7 +9,7 @@ from recipes.models import Recipe
 from .models import Subscription, User
 
 
-class AvatarSerializer(serializers.ModelSerializer):            # Обратить внимание на ТЗ
+class AvatarSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
