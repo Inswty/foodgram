@@ -25,7 +25,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def get_permissions(self):
-        if self.action in ('favorite', 'shopping_cart'):
+        if self.action in ('create', 'favorite', 'shopping_cart'):
             return [IsAuthenticated()]
         return super().get_permissions()
 
@@ -45,8 +45,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         author = self.request.query_params.get('author')
         # Если теги не выбраны → возвращем пустой queryset
-        if self.action == 'list' and not tags and not is_in_cart:
-            return Recipe.objects.none()
+        """if self.action == 'list' and not tags and not is_in_cart:
+            return Recipe.objects.none()"""
         if tags:
             queryset = queryset.filter(tags__slug__in=tags).distinct()
         if self.request.query_params.get('is_favorited') == '1':

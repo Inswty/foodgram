@@ -85,7 +85,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         model = Recipe
@@ -106,6 +106,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Должен быть хотя бы один ингредиент"
             )
+        # Проверка на дубликаты ингредиентов
+        ingredient_ids = [ingredient.get('id') for ingredient in value]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError(
+                "Ингредиенты не должны повторяться"
+            )
         return value
 
     def validate_tags(self, value):
@@ -113,7 +119,24 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Должен быть хотя бы один тег"
             )
+        # Проверка на дубликаты тегов
+        tag_ids = [tag.id for tag in value]
+        if len(tag_ids) != len(set(tag_ids)):
+            raise serializers.ValidationError(
+                "Теги не должны повторяться"
+            )
         return value
+
+    def validate(self, data):
+        if 'tags' not in self.initial_data:
+            raise serializers.ValidationError({
+                'tags': 'Это поле обязательно.'
+            })
+        if 'ingredients' not in self.initial_data:
+            raise serializers.ValidationError({
+                'ingredients': 'Это поле обязательно.'
+            })
+        return data
 
     def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data
