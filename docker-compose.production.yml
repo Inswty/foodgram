@@ -30,7 +30,7 @@ services:
     volumes:
       - static_volume:/staticfiles
       - static_volume:/usr/share/nginx/html
-      - ./docs/:/usr/share/nginx/html/api/docs/
+      #- ./docs/:/usr/share/nginx/html/api/docs/
       - media_volume:/media/
     depends_on:
       - backend
