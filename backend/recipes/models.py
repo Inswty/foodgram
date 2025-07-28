@@ -146,7 +146,7 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorited_by',  # кто добавил этот рецепт в избранное ?
+        related_name='favorited_by',
         verbose_name='Рецепт'
     )
 

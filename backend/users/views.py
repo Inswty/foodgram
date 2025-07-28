@@ -21,7 +21,6 @@ class UserViewSet(DjoserUserViewSet):
             return [IsAuthenticated()]
         return super().get_permissions()
 
-    # Метод для работы с аватаром
     @action(detail=False, methods=('put', 'patch', 'delete'),
             url_path='me/avatar', serializer_class=AvatarSerializer)
     def avatar(self, request):
@@ -33,7 +32,7 @@ class UserViewSet(DjoserUserViewSet):
         if request.method in ('PUT', 'PATCH'):
             if 'avatar' not in request.data:
                 return Response(
-                    {"error": "Поле 'avatar' обязательно для заполнения."},
+                    {'error': 'Поле "avatar" обязательно для заполнения.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         if request.method == 'DELETE':
@@ -45,7 +44,6 @@ class UserViewSet(DjoserUserViewSet):
         serializer.save()
         return Response(serializer.data)
 
-    # Методы для подписок
     @action(detail=False, methods=('get',))
     def subscriptions(self, request):
         """Получение списка подписок"""

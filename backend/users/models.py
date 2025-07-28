@@ -14,7 +14,7 @@ class User(AbstractUser):
         verbose_name='Аватар'
     )
 
-    USERNAME_FIELD = 'email'  # Аутентификация по email
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
@@ -30,20 +30,19 @@ class Subscription(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscriptions',  # Доступ через user.subscriptions.all()
+        related_name='subscriptions',
         verbose_name='Подписчик'
     )
     subscribed_to = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscribers',  # Доступ через user.subscribers.all()
+        related_name='subscribers',
         verbose_name='Автор'
     )
 
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        # Ограничения:
         constraints = [
             # Запрещаем повторные подписки
             models.UniqueConstraint(

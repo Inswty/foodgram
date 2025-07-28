@@ -44,7 +44,7 @@ class UserAdmin(BaseUserAdmin):
             return format_html(
                 '<img src="{}" width="50">', obj.avatar.url
             )
-        return "Нет фото"
+        return 'Нет фото'
     avatar_preview.short_description = 'Аватар'
 
 

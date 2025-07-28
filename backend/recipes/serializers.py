@@ -39,7 +39,7 @@ class IngredientInRecipeWriteSerializer(serializers.Serializer):
 
     def validate_id(self, value):
         if not Ingredient.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Ингредиент не существует")
+            raise serializers.ValidationError('Ингредиент не существует')
         return value
 
     def validate_amount(self, value):
@@ -97,33 +97,33 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def validate_cooking_time(self, value):
         if value <= 0:
             raise serializers.ValidationError(
-                "Время приготовления должно быть больше 0"
+                'Время приготовления должно быть больше 0'
             )
         return value
 
     def validate_ingredients(self, value):
         if not value:
             raise serializers.ValidationError(
-                "Должен быть хотя бы один ингредиент"
+                'Должен быть хотя бы один ингредиент'
             )
         # Проверка на дубликаты ингредиентов
         ingredient_ids = [ingredient.get('id') for ingredient in value]
         if len(ingredient_ids) != len(set(ingredient_ids)):
             raise serializers.ValidationError(
-                "Ингредиенты не должны повторяться"
+                'Ингредиенты не должны повторяться'
             )
         return value
 
     def validate_tags(self, value):
         if not value:
             raise serializers.ValidationError(
-                "Должен быть хотя бы один тег"
+                'Должен быть хотя бы один тег'
             )
         # Проверка на дубликаты тегов
         tag_ids = [tag.id for tag in value]
         if len(tag_ids) != len(set(tag_ids)):
             raise serializers.ValidationError(
-                "Теги не должны повторяться"
+                'Теги не должны повторяться'
             )
         return value
 

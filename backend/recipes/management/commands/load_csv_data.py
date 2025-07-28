@@ -9,7 +9,7 @@ from recipes.models import Ingredient
 class Command(BaseCommand):
     """Команда загрузки данных из CSV файлов."""
 
-    help = 'Загружает данные из CSV файлов в базу данных'
+    help = 'Загружает данные из CSV файла в базу данных'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -41,7 +41,6 @@ class Command(BaseCommand):
                     if len(row) >= 2:  # Проверяем, что есть оба значения
                         name = row[0].strip()
                         measurement_unit = row[1].strip()
-
                         if name:  # Пропускаем пустые строки
                             objects_to_create.append(
                                 Ingredient(

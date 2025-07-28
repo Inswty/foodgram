@@ -44,9 +44,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             self.request.query_params.get('is_in_shopping_cart') == '1'
         )
         author = self.request.query_params.get('author')
-        # Если теги не выбраны → возвращем пустой queryset
-        """if self.action == 'list' and not tags and not is_in_cart:
-            return Recipe.objects.none()"""
         if tags:
             queryset = queryset.filter(tags__slug__in=tags).distinct()
         if self.request.query_params.get('is_favorited') == '1':
