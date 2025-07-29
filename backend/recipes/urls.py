@@ -1,16 +1,12 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+from django.views.generic import TemplateView
 
-from .views import (
-    IngredientViewSet, RecipeViewSet, redirect_short_link, TagViewSet
-)
-
-router = DefaultRouter()
-router.register(r'recipes', RecipeViewSet, basename='recipes')
-router.register(r'tags', TagViewSet, basename='tags')
-router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+from .views import redirect_short_link
 
 urlpatterns = [
-    path('', include(router.urls)),
     path('s/<str:short_code>/', redirect_short_link, name='recipe-short-link'),
+    path('recipes/<int:pk>/',
+         TemplateView.as_view(template_name='index.html'),
+         name='recipe-detail'
+         ),
 ]

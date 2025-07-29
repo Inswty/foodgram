@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 
 from core.constants import MAX_STR_LENGTH
 
@@ -49,12 +50,15 @@ class Subscription(models.Model):
                 fields=['user', 'subscribed_to'],
                 name='unique_subscription'
             ),
-            # Запрещаем подписки на самого себя
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('subscribed_to')),
-                name='no_self_subscription'
-            )
         ]
+
+    def clean(self):
+        if self.user == self.subscribed_to:
+            raise ValidationError('Нельзя подписаться на самого себя.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Проверим через clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.user} подписан → {self.subscribed_to}'

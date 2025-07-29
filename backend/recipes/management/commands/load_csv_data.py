@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--data-dir', type=str, default='/data',
+            '--data-dir', type=str, default='./data',
             help='Путь к директории с CSV файлами. По умолчанию: /data'
         )
 
