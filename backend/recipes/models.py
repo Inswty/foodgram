@@ -2,7 +2,6 @@ import random
 import string
 
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 from core.constants import (
@@ -94,16 +93,6 @@ class Recipe(models.Model):
                     self.short_code = code
                     self.save(update_fields=('short_code',))
                     break
-
-    def clean(self):
-        if self.pk and not self.ingredients.exists():
-            raise ValidationError(
-                'Рецепт должен содержать хотя бы один ингредиент.'
-            )
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'рецепт'
