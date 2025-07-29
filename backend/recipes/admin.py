@@ -9,6 +9,7 @@ from .models import (
 class IngredientInRecipeInline(admin.TabularInline):
     model = IngredientInRecipe
     extra = 1
+    min_num = 1
     autocomplete_fields = ('ingredient',)
     readonly_fields = ('ingredient_measurement_unit',)
 
