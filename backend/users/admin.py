@@ -15,6 +15,8 @@ class UserAdmin(BaseUserAdmin):
         'username',
         'first_name',
         'last_name',
+        'recipes_count',
+        'author_subscribers_count',
         'avatar_preview')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('email',)
@@ -39,21 +41,29 @@ class UserAdmin(BaseUserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
+    @admin.display(description='Аватар')
     def avatar_preview(self, obj):
         if obj.avatar:
             return format_html(
                 '<img src="{}" width="50">', obj.avatar.url
             )
         return 'Нет фото'
-    avatar_preview.short_description = 'Аватар'
+
+    @admin.display(description='Количество рецептов')
+    def recipes_count(self, obj):
+        return obj.recipes.count()
+
+    @admin.display(description='Количество подписчиков')
+    def author_subscribers_count(self, obj):
+        return Subscription.objects.filter(user=obj).count()
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'subscribed_to',
+        'author',
     )
     list_filter = ('user',)
     search_fields = ('user',)
-    ordering = ('subscribed_to',)
+    ordering = ('author',)
