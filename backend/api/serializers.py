@@ -13,7 +13,7 @@ from users.models import Subscription, User
 
 
 class AvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(required=True, allow_null=False)
+    avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
@@ -31,12 +31,10 @@ class UserSerializer(BaseUserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=request.user,
-                author=obj
-            ).exists()
-        return False
+        return (
+            request and request.user.is_authenticated
+            and request.user.subscriptions.filter(author=obj).exists()
+        )
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -45,10 +43,10 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class SubscriptionSerializer(UserSerializer):
+class SubscriptionReadSerializer(UserSerializer):
     """Сериализатор для подписок с дополнительной информацией."""
 
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(read_only=True)
     recipes = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
@@ -70,8 +68,30 @@ class SubscriptionSerializer(UserSerializer):
             recipes, many=True, context=self.context
         ).data
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+
+class SubscriptionCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания подписки."""
+
+    class Meta:
+        model = Subscription
+        fields = ('author',)
+        extra_kwargs = {'author': {'write_only': True}}
+
+    def validate(self, data):
+        user = self.context['request'].user
+        author = data['author']
+
+        if user == author:
+            raise serializers.ValidationError('Нельзя подписаться на себя')
+        if Subscription.objects.filter(user=user, author=author).exists():
+            raise serializers.ValidationError('Подписка уже существует')
+        return data
+
+    def to_representation(self, instance):
+        return SubscriptionReadSerializer(
+            instance.author,
+            context=self.context
+        ).data
 
 
 class IngredientSerializer(serializers.ModelSerializer):
