@@ -74,10 +74,10 @@ class UserViewSet(DjoserUserViewSet):
     def subscriptions(self, request):
         queryset = (
             self.get_queryset()
-            .filter(followers__user=request.user)
+            .filter(subscriptions_to_author__user=request.user)
             .annotate(recipes_count=Count('recipes'))
             .prefetch_related('recipes')
-            .order_by('-recipes_count')
+            .order_by('username',)
         )
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
@@ -112,10 +112,6 @@ class UserViewSet(DjoserUserViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
 
-    queryset = (
-        Recipe.objects.select_related('author')
-        .prefetch_related('tags', 'ingredients')
-    )
     permission_classes = (IsOwnerOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -204,7 +200,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return text_content
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=('get',))
     def download_shopping_cart(self, request):
         """Скачать список покупок в виде текстового файла."""
         ingredients = IngredientInRecipe.objects.filter(
@@ -226,7 +222,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return response
 
-    @action(detail=True, url_path='get-link', methods=['get'])
+    @action(detail=True, url_path='get-link', methods=('get',))
     def get_link(self, request, pk=None):
         recipe = self.get_object()
         generate_unique_short_code(recipe)

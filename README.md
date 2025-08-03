@@ -1,5 +1,7 @@
 [![Main Foodgram workflow](https://github.com/Inswty/foodgram/actions/workflows/main.yml/badge.svg)](https://github.com/Inswty/foodgram/actions/workflows/main.yml)
 
+https://foodgram-25.duckdns.org/
+
 **Foodgram** — проектом «Фудграм» — сайт, на котором пользователи могут публиковать свои рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Зарегистрированным пользователям также доступен сервис «Список покупок». Он позволяет создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
 
 Функциональность:

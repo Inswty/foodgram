@@ -33,7 +33,7 @@ class UserSerializer(BaseUserSerializer):
         request = self.context.get('request')
         return (
             request and request.user.is_authenticated
-            and request.user.subscriptions.filter(author=obj).exists()
+            and request.user.user_subscriptions.filter(author=obj).exists()
         )
 
 

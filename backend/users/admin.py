@@ -16,7 +16,7 @@ class UserAdmin(BaseUserAdmin):
         'first_name',
         'last_name',
         'recipes_count',
-        'followers_count',
+        'subscriptions_to_author_count',
         'avatar_preview')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('email',)
@@ -54,8 +54,8 @@ class UserAdmin(BaseUserAdmin):
         return obj.recipes.count()
 
     @admin.display(description='Количество подписчиков')
-    def followers_count(self, obj):
-        return obj.subscriptions.count()
+    def subscriptions_to_author_count(self, obj):
+        return obj.user_subscriptions.count()
 
 
 @admin.register(Subscription)
