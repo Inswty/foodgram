@@ -51,11 +51,11 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.author.email
     author_email.short_description = 'Email'
 
+    @admin.display(description='Изображение')
     def image_preview(self, obj):
         return format_html(
             '<img src="{}" width="50">', obj.image.url
         )
-    image_preview.short_description = 'Изображение'
 
     @admin.display(description='В избранном')
     def favorites_count(self, obj):
@@ -64,13 +64,13 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Ингредиенты')
     def ingredients_list(self, obj):
-        return ", ".join(
+        return ', '.join(
             [ingredient.name for ingredient in obj.ingredients.all()]
         )
 
     @admin.display(description='Теги')
     def tags_list(self, obj):
-        return ", ".join([tag.name for tag in obj.tags.all()])
+        return ', '.join([tag.name for tag in obj.tags.all()])
 
 
 @admin.register(Tag)

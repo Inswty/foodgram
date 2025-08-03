@@ -1,5 +1,6 @@
 import random
 import string
+
 from recipes.models import Recipe
 from core.constants import LENGTH_SHORT_CODE
 

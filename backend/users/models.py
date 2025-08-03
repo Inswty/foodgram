@@ -20,8 +20,12 @@ class User(AbstractUser):
         null=True,
         verbose_name='Аватар'
     )
-    first_name = models.CharField(max_length=MAX_NAME_LENGTH, blank=False)
-    last_name = models.CharField(max_length=MAX_NAME_LENGTH, blank=False)
+    first_name = models.CharField(
+        max_length=MAX_NAME_LENGTH, blank=False, verbose_name='Имя'
+    )
+    last_name = models.CharField(
+        max_length=MAX_NAME_LENGTH, blank=False, verbose_name='Фамилия'
+    )
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -43,7 +47,7 @@ class Subscription(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscribed_by',
+        related_name='followers',
         verbose_name='Автор'
     )
 
@@ -53,7 +57,7 @@ class Subscription(models.Model):
         constraints = (
             # Запрещаем повторные подписки
             models.UniqueConstraint(
-                fields=['user', 'author'],
+                fields=('user', 'author',),
                 name='unique_subscription'
             ),
         )

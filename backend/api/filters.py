@@ -18,12 +18,12 @@ class RecipeFilter(filters.FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ['tags', 'author', 'is_favorited', 'is_in_shopping_cart']
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart',)
 
 
 class IngredientSearchFilter(SearchFilter):
     """
-    Поиск по частичному вхождению в начале названия и в произвольном месте,
-    но без приоритетной сортировки.
+    Поиск по частичному вхождению в начале названия и в произвольном месте.
     """
+
     search_param = 'name'

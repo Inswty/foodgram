@@ -46,7 +46,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 class SubscriptionReadSerializer(UserSerializer):
     """Сериализатор для подписок с дополнительной информацией."""
 
-    recipes_count = serializers.IntegerField(read_only=True)
+    recipes_count = serializers.IntegerField(read_only=True, default=0)
     recipes = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
@@ -86,6 +86,10 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         if Subscription.objects.filter(user=user, author=author).exists():
             raise serializers.ValidationError('Подписка уже существует')
         return data
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Subscription.objects.create(user=user, **validated_data)
 
     def to_representation(self, instance):
         return SubscriptionReadSerializer(
@@ -174,19 +178,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                         f' меньше {MIN_INGREDIENT_AMOUNT}.'}
     )
 
-    def validate_image(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Поле image не может быть пустым.'
-            )
-        return value
-
     class Meta:
         model = Recipe
         fields = (
             'id', 'name', 'image', 'text', 'ingredients',
             'tags', 'cooking_time'
         )
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Поле image не может быть пустым'
+            )
+        return value
 
     def validate_ingredients(self, value):
         if not value:
@@ -247,6 +251,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients', None)
         tags = validated_data.pop('tags', None)
@@ -274,6 +279,12 @@ class BaseWriteSerializer(serializers.ModelSerializer):
                 f'Рецепт уже в {model._meta.verbose_name_plural}.'
             )
         return data
+
+    def to_representation(self, instance):
+        return ShortRecipeSerializer(
+            instance.recipe,
+            context=self.context
+        ).data
 
 
 class FavoriteWriteSerializer(BaseWriteSerializer):
