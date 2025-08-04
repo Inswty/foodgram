@@ -31,6 +31,7 @@ services:
       - static_volume:/staticfiles
       - static_volume:/usr/share/nginx/html
       - media_volume:/media/
+      - ./docs/:/usr/share/nginx/html/api/docs/
     depends_on:
       - backend
     ports:
